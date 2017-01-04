@@ -1,5 +1,5 @@
 {
-  "name": "homebridge-window-cover",
+  "name": "homebridge-windowcover-webapi",
   "version": "1.0.6",
   "description": "Homebridge Window Cover Plugin",
   "main": "index.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PJCzx/homebridge-window-cover.git"
+    "url": "git+https://github.com/sotahatano/homebridge-windowcover-webapi"
   },
   "keywords": [
     "homebridge",
@@ -22,14 +22,13 @@
     "window",
     "cover"
   ],
-  "author": "Pierre-Julien Cazaux",
+  "author": "Sota Hatano",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/PJCzx/homebridge-window-cover/issues"
+    "url": "https://github.com/sotahatano/homebridge-windowcover-webapi/issues"
   },
-  "homepage": "https://github.com/PJCzx/homebridge-window-cover#readme",
+  "homepage": "https://github.com/sotahatano/homebridge-windowcover-webapi#readme",
   "dependencies": {
-    "python-shell": "^0.4.0",
     "request": "^2.78.0"
   }
 }
