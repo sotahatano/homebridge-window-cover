@@ -36,3 +36,5 @@ Configuration sample:
         "platforms":[]
     }
 ```
+# Contribution
+This software is a little modified from https://github.com/PJCzx/homebridge-window-cover for my home use.
