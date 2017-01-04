@@ -1,6 +1,6 @@
 {
   "name": "homebridge-windowcover-webapi",
-  "version": "1.0.6",
+  "version": "1.0.0",
   "description": "Homebridge Window Cover Plugin",
   "main": "index.js",
   "engines": {
@@ -22,7 +22,7 @@
     "window",
     "cover"
   ],
-  "author": "Sota Hatano",
+  "author": "Pierre-Julien Cazaux, Sota Hatano",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/sotahatano/homebridge-windowcover-webapi/issues"
