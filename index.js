@@ -6,7 +6,7 @@ module.exports = function(homebridge) {
 	console.log("homebridge API version: " + homebridge.version);
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
-  homebridge.registerAccessory("homebridge-windowcover-webapi", "WindowCover", WindowCover);
+  homebridge.registerAccessory("homebridge-windowcover-webapi", "WindowCoverWebAPI", WindowCover);
 };
 
 
