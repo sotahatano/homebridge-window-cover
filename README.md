@@ -26,7 +26,7 @@ Configuration sample:
 
         "accessories": [
             {
-                "accessory": "WindowCover",
+                "accessory": "WindowCoverWebAPI",
                 "name": "Window Cover Demo",
                 "id": "MAC_ADDRESS_LIKE_12:34:56:78:9A:BC",
                 "WebAPIroute": "http://WEBSERVICE_API/TERMINATED_BY_SLASH/",
