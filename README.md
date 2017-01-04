@@ -1,6 +1,9 @@
-# homebridge-window-cover
-
+# homebridge-windowcover-webapi
 Supports window cover devices on HomeBridge Platform
+
+# Requirement
+WebAPI can be set the target value like http://WEBSERVICE_API/TERMINATED_BY_SLASH/id/100
+*100 is the target value.
 
 # Installation
 
