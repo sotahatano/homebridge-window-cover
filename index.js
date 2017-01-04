@@ -1,5 +1,4 @@
 var request = require("request");
-var PythonShell = require('python-shell');
 
 var Service, Characteristic;
 
@@ -7,7 +6,7 @@ module.exports = function(homebridge) {
 	console.log("homebridge API version: " + homebridge.version);
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
-  homebridge.registerAccessory("homebridge-window-cover", "WindowCover", WindowCover);
+  homebridge.registerAccessory("homebridge-windowcover-webapi", "WindowCover", WindowCover);
 };
 
 
@@ -15,10 +14,8 @@ function WindowCover(log, config) {
 	this.service = new Service.WindowCovering(this.name);
 	this.log = log;
 	this.name = config.name || "Window cover";
-	this.id = config.id || 0;
-	this.pythonScriptPath = config.pythonScriptPath;
-	this.pythonScriptName = config.pythonScriptName;
-	this.apiroute = config.apiroute;
+	this.id = config.id || 0;	
+	this.apiroute = config.WebAPIroute;
 
 
 	// Required Characteristics
@@ -71,38 +68,19 @@ WindowCover.prototype = {
 		this.log("setTargetPosition from %s to %s", this.targetPosition, value);
 		this.targetPosition = value;
 
-		if(this.targetPosition > this.currentPosition) {
+				
+		//0 and 100 are the special value, force to send the command          		
+		if(this.targetPosition > this.currentPosition || this.targetPosition == 100) {
 			this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.INCREASING);
-		} else if(this.targetPosition < this.currentPosition) {
+		} else if(this.targetPosition < this.currentPosition || this.targetPosition == 0) {
 			this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.DECREASING);
 		} else if(this.targetPosition = this.currentPosition) {
 			this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.STOPPED);
 		}		
 
-		//PYTHON 
-		if(this.pythonScriptPath !== undefined) {
-
-			var options = {};
-			options.args = this.targetPosition;
-			options.scriptPath = this.pythonScriptPath
-
-			PythonShell.run(this.pythonScriptName, options, function (err, results) {
-			  	if (err) {
-			  		this.log("Script Error", options.scriptPath, options.args, err);
-			  	 	callback(err);
-			  	} else {
-					// results is an array consisting of messages collected during execution
-				  	console.log('Success ! Results: %j', results);
-				  	this.currentPosition = this.targetPosition;
-				  	this.service.setCharacteristic(Characteristic.CurrentPosition, this.currentPosition);
-				  	this.log("currentPosition is now %s", this.currentPosition);
-					this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.STOPPED);
-				  	callback(null); // success
-			  	}
-			}.bind(this));
-		} else if (this.apiroute !== undefined) {
+		if (this.apiroute !== undefined) {
 			//HTTP API ACTION
-			var url = this.apiroute + "/targetposition/"+ this.id + "/" + this.targetPosition;
+			var url = this.apiroute + this.id + "/" + this.targetPosition;
 			this.log("GET", url);
 			request.get({
 				url: url
