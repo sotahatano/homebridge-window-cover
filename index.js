@@ -47,9 +47,29 @@ WindowCover.prototype = {
 	},
 	// Required
 	getCurrentPosition: function(callback) {
-		this.log("getCurrentPosition:", this.currentPosition);
-		var error = null;
-		callback(error, this.currentPosition);
+		if (this.apiroute !== undefined) {
+			//HTTP API ACTION
+			var url = this.apiroute + this.id + "/STATUS";
+			
+			this.callWebAPI(url,
+				function(res){
+					if (Object.keys(res).length > 0){
+						this.currentPosition = res['current'];
+						this.log("getCurrentPosition:", this.currentPosition);
+						this.service.setCharacteristic(Characteristic.CurrentPosition, this.currentPosition);
+						callback(null, this.currentPosition);
+					} else {
+						callback(err, this.currentPotision);
+					}
+				}.bind(this)
+			);
+		} else {
+			//FAKE SUCCESS
+			this.log("Fake Success");
+			this.log("getCurrentPosition:", this.currentPosition);
+			var error = null;
+			callback(error, this.currentPosition);
+		}
 	},
 
 	getName: function(callback) {
@@ -59,9 +79,30 @@ WindowCover.prototype = {
 	},
 
 	getTargetPosition: function (callback) {
-		this.log("getTargetPosition :", this.targetPosition);
-		var error = null;
-		callback(error, this.targetPosition);
+		if (this.apiroute !== undefined) {
+			//HTTP API ACTION
+			var url = this.apiroute + this.id + "/STATUS";
+			
+			this.callWebAPI(url,
+				function(res){
+					if (Object.keys(res).length > 0){
+						this.targetPosition = res['target'];
+						this.log("getTargetPosition :", this.targetPosition);
+						this.service.setCharacteristic(Characteristic.TargetPosition, this.targetPosition);
+						callback(null, this.targetPosition);
+					} else {
+						callback(err, this.targetPosition);
+					}
+				}.bind(this)
+			);
+		} else {
+			//FAKE SUCCESS
+			this.log("Fake Success");
+			this.log("getTargetPosition :", this.targetPosition);
+			this.service.setCharacteristic(Characteristic.TargetPosition, this.targetPosition);
+			var error = null;
+			callback(error, this.targetPosition);
+		}
 	},
 
 	setTargetPosition: function (value, callback) {
@@ -69,35 +110,36 @@ WindowCover.prototype = {
 		this.targetPosition = value;
 
 				
-		//0 and 100 are the special value, force to send the command          		
-		if(this.targetPosition > this.currentPosition || this.targetPosition == 100) {
-			this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.INCREASING);
-		} else if(this.targetPosition < this.currentPosition || this.targetPosition == 0) {
+		if(this.targetPosition < this.currentPosition) {
+			this.positionState = 0;
 			this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.DECREASING);
-		} else if(this.targetPosition = this.currentPosition) {
+		} else if(this.targetPosition > this.currentPosition) {
+			this.positionState = 1;
+			this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.INCREASING);
+		} else if(this.targetPosition == this.currentPosition) {
+			this.positionState = 2;
 			this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.STOPPED);
 		}		
 
 		if (this.apiroute !== undefined) {
-			//HTTP API ACTION
-			var url = this.apiroute + this.id + "/" + this.targetPosition;
-			this.log("GET", url);
-			request.get({
-				url: url
-			}, function(err, response, body) {
-				if (!err && response.statusCode == 200) {
-					this.log("Response success");
-					this.currentPosition = this.targetPosition;
-					this.service.setCharacteristic(Characteristic.CurrentPosition, this.currentPosition);
-					this.log("currentPosition is now %s", this.currentPosition);
-					this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.STOPPED);
-					//doSuccess.bind(this);
-					callback(null); // success
-				} else {
-					this.log("Response error" , err);
-					callback(err);
-				}
-			}.bind(this));
+			if (this.positionState != 2){
+				//HTTP API ACTION
+				var url = this.apiroute + this.id + "/" + this.targetPosition;
+				
+				this.callWebAPI(url,
+					function(res){
+						if (Object.keys(res).length > 0){
+							this.currentPosition = res['current'];
+							this.service.setCharacteristic(Characteristic.CurrentPosition, this.currentPosition);
+							this.positionState = res['state'];
+							this.service.setCharacteristic(Characteristic.PositionState, this.positionState);
+							callback(null);
+						} else {
+							callback(err);
+						}
+					}.bind(this)
+				);
+			}
 		} else {
 			//FAKE SUCCESS
 			this.log("Fake Success");
@@ -110,9 +152,30 @@ WindowCover.prototype = {
 	},
 
 	getPositionState: function(callback) {
-		this.log("getPositionState :", this.positionState);
-		var error = null;
-		callback(error, this.positionState);
+		if (this.apiroute !== undefined) {
+			//HTTP API ACTION
+			var url = this.apiroute + this.id + "/STATUS";
+			
+			this.callWebAPI(url,
+				function(res){
+					if (Object.keys(res).length > 0){
+						this.positionState = res['state'];
+						this.log("getPositionState:", this.positionState);
+						this.service.setCharacteristic(Characteristic.PositionState, this.positionState);
+						callback(null, this.positionState);
+					} else {
+						callback(err, this.positionState);
+					}
+				}.bind(this)
+			);
+		} else {
+			//FAKE SUCCESS
+			this.log("Fake Success");
+			this.log("getPositionState:", this.positionState);
+			this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.STOPPED);
+			var error = null;
+			callback(error, this.positionState);
+		}
 	},
 
 	getServices: function() {
@@ -148,5 +211,24 @@ WindowCover.prototype = {
 		//TODO
 	
 		return [informationService, this.service];
+	},
+	
+	callWebAPI: function(url, callback)
+	{
+//			var url = this.apiroute + this.id + "/" + this.targetPosition;
+			var json = [{}];
+			
+			this.log("GET", url);
+			request.get({
+				url: url
+			}, function(err, response, body) {
+				if (!err && response.statusCode == 200) {
+					this.log("Response success: " + url);
+					json = JSON.parse(body);
+					callback(json[0]);
+				} else {
+					this.log("Response error" , err);
+				}
+			}.bind(this));
 	}
 };
