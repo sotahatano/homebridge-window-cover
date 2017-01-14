@@ -139,6 +139,8 @@ WindowCover.prototype = {
 						}
 					}.bind(this)
 				);
+			} else {
+				callback(null);	
 			}
 		} else {
 			//FAKE SUCCESS
@@ -215,7 +217,6 @@ WindowCover.prototype = {
 	
 	callWebAPI: function(url, callback)
 	{
-//			var url = this.apiroute + this.id + "/" + this.targetPosition;
 			var json = [{}];
 			
 			this.log("GET", url);
